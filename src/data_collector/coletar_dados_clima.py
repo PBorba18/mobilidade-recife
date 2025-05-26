@@ -1,60 +1,58 @@
 import requests
-import os
-from dotenv import load_dotenv
 import pandas as pd
+import os
 from datetime import datetime
+from dotenv import load_dotenv
 
-# Carregar variáveis do .env
+# Carregar chave da API do arquivo .env
 load_dotenv()
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
 
-def coletar_clima(cidade, pais='BR'):
-    url = 'https://api.openweathermap.org/data/2.5/weather'
-    params = {
-        'q': f'{cidade},{pais}',
-        'appid': API_KEY,
-        'units': 'metric',
-        'lang': 'pt_br'
+# Lista de cidades e seus códigos (ID da cidade ou nome, simplificado aqui por nome)
+cidades = ["Recife", "Olinda", "Jaboatão dos Guararapes"]
+
+# URL da API OpenWeather
+url = "https://api.openweathermap.org/data/2.5/weather"
+
+# Lista para armazenar os dados
+dados = []
+
+for cidade in cidades:
+    parametros = {
+        "q": cidade + ",BR",
+        "appid": API_KEY,
+        "units": "metric",
+        "lang": "pt_br"
     }
-    resposta = requests.get(url, params=params)
+
+    resposta = requests.get(url, params=parametros)
 
     if resposta.status_code == 200:
-        dados = resposta.json()
-        clima = {
-            'cidade': cidade,
-            'data_coleta': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'temperatura': dados['main']['temp'],
-            'sensacao_termica': dados['main']['feels_like'],
-            'temp_min': dados['main']['temp_min'],
-            'temp_max': dados['main']['temp_max'],
-            'umidade': dados['main']['humidity'],
-            'vento': dados['wind']['speed'],
-            'descricao': dados['weather'][0]['description']
-        }
-        return clima
+        info = resposta.json()
+        dados.append({
+            "cidade": cidade,
+            "data_hora": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "temperatura": info["main"]["temp"],
+            "sensacao_termica": info["main"]["feels_like"],
+            "umidade": info["main"]["humidity"],
+            "descricao": info["weather"][0]["description"],
+            "vento_velocidade": info["wind"]["speed"]
+        })
     else:
-        print(f'Erro na API ({cidade}):', resposta.status_code, resposta.text)
-        return None
+        print(f"Erro ao coletar dados de {cidade}: {resposta.status_code}")
 
+# Transformar em dataframe
+df = pd.DataFrame(dados)
 
-if __name__ == '__main__':
-    cidades = ['Recife', 'Olinda', 'Jaboatão dos Guararapes']
+print("\n📊 Dados coletados:\n")
+print(df)
 
-    dados_clima = []
+# Gerar nome do arquivo com data
+data_hoje = datetime.now().strftime('%Y-%m-%d')
+nome_arquivo = f"clima_recife_{data_hoje}.csv"
 
-    for cidade in cidades:
-        clima = coletar_clima(cidade)
-        if clima:
-            dados_clima.append(clima)
+# Salvar na pasta /data
+caminho = os.path.join('data', nome_arquivo)
+df.to_csv(caminho, index=False, encoding='utf-8')
 
-    if dados_clima:
-        df = pd.DataFrame(dados_clima)
-        print(df)
-
-        # Salvar os dados em CSV
-        caminho = 'data/clima_recife.csv'
-        os.makedirs('data', exist_ok=True)
-        df.to_csv(caminho, index=False, encoding='utf-8')
-        print(f'Dados salvos em {caminho}')
-    else:
-        print('Nenhum dado coletado.')
+print(f"\n✅ Arquivo salvo em: {caminho}")
