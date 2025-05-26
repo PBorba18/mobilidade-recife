@@ -1,0 +1,4 @@
+cidade,data_coleta,temperatura,sensacao_termica,temp_min,temp_max,umidade,vento,descricao
+Recife,2025-05-25 21:55:11,27.02,29.6,27.02,27.02,78,6.17,nuvens dispersas
+Olinda,2025-05-25 21:55:11,26.85,29.24,26.85,26.85,78,6.17,nuvens dispersas
+Jaboatão dos Guararapes,2025-05-25 21:55:12,27.03,29.62,27.03,27.03,78,6.17,nuvens dispersas

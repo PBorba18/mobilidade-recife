@@ -1,5 +1,16 @@
+# Ambiente
 venv/
 __pycache__/
+.ipynb_checkpoints/
+
+# Dados
+data/
+*.csv
+*.parquet
+
+# Credenciais
 .env
-*.pyc
+
+# Sistema
 .DS_Store
+*.log

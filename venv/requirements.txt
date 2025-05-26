@@ -2,4 +2,7 @@ pandas
 numpy
 requests
 python-dotenv
-jupyterlab
+streamlit
+plotly
+seaborn
+jupyter
