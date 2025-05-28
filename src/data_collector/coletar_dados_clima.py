@@ -56,3 +56,34 @@ caminho = os.path.join('data', nome_arquivo)
 df.to_csv(caminho, index=False, encoding='utf-8')
 
 print(f"\n✅ Arquivo salvo em: {caminho}")
+
+def coletar_dados_clima(cidades):
+    load_dotenv()
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    url = "http://api.openweathermap.org/data/2.5/weather"
+
+    dados = []
+    for cidade in cidades:
+        params = {
+            "q": cidade + ",BR",
+            "appid": api_key,
+            "lang": "pt_br",
+            "units": "metric"
+        }
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            dados.append({
+                "cidade": cidade,
+                "temperatura": data["main"]["temp"],
+                "sensacao_termica": data["main"]["feels_like"],
+                "umidade": data["main"]["humidity"],
+                "vento": data["wind"]["speed"],
+                "descricao": data["weather"][0]["description"]
+            })
+        else:
+            print(f"Erro ao coletar dados de {cidade}")
+
+    df = pd.DataFrame(dados)
+    df.to_csv("data/clima_recife.csv", index=False, encoding="utf-8")
+    return df
